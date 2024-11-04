@@ -1,0 +1,15 @@
+DROP TABLE IF EXISTS delegateRouteMap;
+DROP TABLE IF EXISTS delegateMap;
+DROP TABLE IF EXISTS smtpIngestMap;
+DROP TABLE IF EXISTS receiveProtectMap;
+DROP TABLE IF EXISTS receiveBlockMap;
+DROP TABLE IF EXISTS receiveBlockReports;
+DROP TABLE IF EXISTS wildcardaliasMap;
+DROP TABLE IF EXISTS aliasuserMap;
+DROP TABLE IF EXISTS aliasdomainMap;
+DROP TABLE IF EXISTS senderaliasMap;
+DROP TABLE IF EXISTS aliasMap;
+DROP TABLE IF EXISTS mailshadow;
+DROP TABLE IF EXISTS mailbox;
+DROP TABLE IF EXISTS mailmaster;
+DROP TABLE IF EXISTS domainMap;
