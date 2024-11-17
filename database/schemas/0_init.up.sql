@@ -1,39 +1,39 @@
 CREATE TABLE IF NOT EXISTS domainMap (
     domain varchar(253) NOT NULL PRIMARY KEY,
-    active int NOT NULL
+    active ENUM('false', 'true') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS mailmaster (
     username varchar(254) NOT NULL PRIMARY KEY,
     password varchar(256) NOT NULL,
-    active int NOT NULL
+    active ENUM('false', 'true') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS mailbox (
     username varchar(254) NOT NULL PRIMARY KEY,
     maildir varchar(513) NOT NULL,
     quota bigint NOT NULL,
-    active int NOT NULL
+    active ENUM('false', 'disabled', 'true') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS mailshadow (
     username varchar(254) NOT NULL PRIMARY KEY,
     password varchar(256) NOT NULL,
-    allow_pwd_chng int NOT NULL,
+    allow_pwd_chng ENUM('false', 'true') NOT NULL,
     FOREIGN KEY (username) REFERENCES mailbox(username)
 );
 
 CREATE TABLE IF NOT EXISTS aliasMap (
     address varchar(254) NOT NULL PRIMARY KEY,
     goto varchar(254) NOT NULL,
-    active int NOT NULL
+    active ENUM('false', 'plain', 'pattern') NOT NULL
     FOREIGN KEY (goto) REFERENCES mailbox(username)
 );
 
 CREATE TABLE IF NOT EXISTS senderaliasMap (
     address varchar(254) NOT NULL,
     allowed varchar(254) NOT NULL,
-    active int NOT NULL,
+    active ENUM('false', 'true') NOT NULL,
     PRIMARY KEY (address, allowed),
     FOREIGN KEY (allowed) REFERENCES mailbox(username)
 );
@@ -41,19 +41,21 @@ CREATE TABLE IF NOT EXISTS senderaliasMap (
 CREATE TABLE IF NOT EXISTS aliasdomainMap (
     domain varchar(253) NOT NULL PRIMARY KEY,
     goto varchar(253) NOT NULL,
-    active int NOT NULL
+    active ENUM('false', 'true', 'catch_all') NOT NULL
+    etype ENUM('plain', 'pattern', 'regex') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS aliasuserMap (
     user varchar(253) NOT NULL PRIMARY KEY,
     goto varchar(253) NOT NULL,
-    active int NOT NULL
+    active ENUM('false', 'true', 'catch_all') NOT NULL
+    etype ENUM('plain', 'pattern', 'regex') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS wildcardaliasMap (
     address varchar(253) NOT NULL PRIMARY KEY,
     goto varchar(253) NOT NULL,
-    active int NOT NULL
+    active ENUM('false', 'true') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS receiveBlockReports (
@@ -72,7 +74,7 @@ CREATE TABLE IF NOT EXISTS receiveBlockMap (
 CREATE TABLE IF NOT EXISTS receiveProtectMap (
     address varchar(254) NOT NULL PRIMARY KEY,
     access varchar(128) NOT NULL,
-    active int NOT NULL
+    active ENUM('false', 'true') NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS smtpIngestMap (
@@ -84,14 +86,14 @@ CREATE TABLE IF NOT EXISTS delegateMap (
     address varchar(254) NOT NULL PRIMARY KEY,
     owner varchar(254) NOT NULL,
     auth text NOT NULL,
-    active int NOT NULL,
+    active ENUM('false', 'true') NOT NULL,
     FOREIGN KEY (owner) REFERENCES mailbox(username)
 );
 
 CREATE TABLE IF NOT EXISTS delegateRouteMap (
     address varchar(254) NOT NULL,
     delegate varchar(254) NOT NULL,
-    active int NOT NULL,
+    active ENUM('false', 'true') NOT NULL,
     PRIMARY KEY (address, delegate),
     FOREIGN KEY (delegate) REFERENCES delegateMap(address)
 );
