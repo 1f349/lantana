@@ -323,7 +323,7 @@ func (q *Queries) GetActiveSenderAliases(ctx context.Context, address string) ([
 }
 
 const getAliasRedirect = `-- name: GetAliasRedirect :one
-SELECT goto FROM aliasMap WHERE ((address = ? AND etype = 'plain') OR (? LIKE address AND etype = 'pattern') OR (sqlc.arg(address) RLIKE address AND etype = 'regex')) AND active = 'true' LIMIT 1
+SELECT goto FROM aliasMap WHERE ((address = ? AND etype = 'plain') OR (? LIKE address AND etype = 'pattern')) AND active = 'true' LIMIT 1
 `
 
 type GetAliasRedirectParams struct {
@@ -624,7 +624,7 @@ func (q *Queries) GetAllWildcardAliases(ctx context.Context) ([]Wildcardaliasmap
 }
 
 const getDomainAliasRedirect = `-- name: GetDomainAliasRedirect :one
-SELECT goto FROM aliasdomainMap WHERE ((domain = ? AND etype = 'plain') OR (? LIKE domain AND etype = 'pattern') OR (sqlc.arg(domain) RLIKE domain AND etype = 'regex')) AND active = 'true' LIMIT 1
+SELECT goto FROM aliasdomainMap WHERE ((domain = ? AND etype = 'plain') OR (? LIKE domain AND etype = 'pattern')) AND active = 'true' LIMIT 1
 `
 
 type GetDomainAliasRedirectParams struct {
@@ -671,7 +671,7 @@ func (q *Queries) GetSenderAliases(ctx context.Context, address string) ([]GetSe
 }
 
 const getUserAliasRedirect = `-- name: GetUserAliasRedirect :one
-SELECT goto FROM aliasuserMap WHERE ((user = ? AND etype = 'plain') OR (? LIKE user AND etype = 'pattern') OR (sqlc.arg(user) RLIKE user AND etype = 'regex')) AND active = 'true' LIMIT 1
+SELECT goto FROM aliasuserMap WHERE ((user = ? AND etype = 'plain') OR (? LIKE user AND etype = 'pattern')) AND active = 'true' LIMIT 1
 `
 
 type GetUserAliasRedirectParams struct {

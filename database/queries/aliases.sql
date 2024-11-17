@@ -62,7 +62,7 @@ SELECT address, goto, etype FROM aliasMap WHERE active = 'true';
 SELECT * FROM aliasMap;
 
 -- name: GetAliasRedirect :one
-SELECT goto FROM aliasMap WHERE ((address = sqlc.arg(address) AND etype = 'plain') OR (sqlc.arg(address) LIKE address AND etype = 'pattern') OR (sqlc.arg(address) RLIKE address AND etype = 'regex')) AND active = 'true' LIMIT 1;
+SELECT goto FROM aliasMap WHERE ((address = sqlc.arg(address) AND etype = 'plain') OR (sqlc.arg(address) LIKE address AND etype = 'pattern')) AND active = 'true' LIMIT 1;
 
 -- name: EnableAlias :execresult
 UPDATE aliasMap SET active = 'true' WHERE address = ?;
@@ -92,7 +92,7 @@ SELECT domain, goto, etype FROM aliasdomainMap WHERE active = 'true';
 SELECT * FROM aliasdomainMap;
 
 -- name: GetDomainAliasRedirect :one
-SELECT goto FROM aliasdomainMap WHERE ((domain = sqlc.arg(domain) AND etype = 'plain') OR (sqlc.arg(domain) LIKE domain AND etype = 'pattern') OR (sqlc.arg(domain) RLIKE domain AND etype = 'regex')) AND active = 'true' LIMIT 1;
+SELECT goto FROM aliasdomainMap WHERE ((domain = sqlc.arg(domain) AND etype = 'plain') OR (sqlc.arg(domain) LIKE domain AND etype = 'pattern')) AND active = 'true' LIMIT 1;
 
 -- name: EnableDomainAlias :execresult
 UPDATE aliasdomainMap SET active = 'true' WHERE domain = ?;
@@ -122,7 +122,7 @@ SELECT user, goto, etype FROM aliasuserMap WHERE active = 'true';
 SELECT * FROM aliasuserMap;
 
 -- name: GetUserAliasRedirect :one
-SELECT goto FROM aliasuserMap WHERE ((user = sqlc.arg(user) AND etype = 'plain') OR (sqlc.arg(user) LIKE user AND etype = 'pattern') OR (sqlc.arg(user) RLIKE user AND etype = 'regex')) AND active = 'true' LIMIT 1;
+SELECT goto FROM aliasuserMap WHERE ((user = sqlc.arg(user) AND etype = 'plain') OR (sqlc.arg(user) LIKE user AND etype = 'pattern')) AND active = 'true' LIMIT 1;
 
 -- name: EnableUserAlias :execresult
 UPDATE aliasuserMap SET active = 'true' WHERE user = ?;
