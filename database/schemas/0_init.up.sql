@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS mailshadow (
 CREATE TABLE IF NOT EXISTS aliasMap (
     address varchar(254) NOT NULL PRIMARY KEY,
     goto varchar(254) NOT NULL,
-    active ENUM('false', 'plain', 'pattern') NOT NULL,
+    active ENUM('false', 'true') NOT NULL,
+    etype ENUM('plain', 'pattern', 'regex') NOT NULL,
     FOREIGN KEY (goto) REFERENCES mailbox(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
