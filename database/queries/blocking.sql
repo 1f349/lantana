@@ -2,7 +2,7 @@
 INSERT INTO receiveBlockReports (address, reporter, report) VALUES (?, ?, ?);
 
 -- name: DeleteReport :execresult
-DELETE FROM receiveBlockReports WHERE address = $1 AND reporter = $2;
+DELETE FROM receiveBlockReports WHERE address = sqlc.arg(address) AND reporter = sqlc.arg(reporter);
 
 -- name: GetAllReports :many
 SELECT * FROM receiveBlockReports;
@@ -14,7 +14,7 @@ SELECT reporter, report FROM receiveBlockReports WHERE address = ?;
 SELECT address, report FROM receiveBlockReports WHERE reporter = ?;
 
 -- name: GetReport :one
-SELECT report FROM receiveBlockReports WHERE address = $1 AND reporter = $2 LIMIT 1;
+SELECT report FROM receiveBlockReports WHERE address = sqlc.arg(address) AND reporter = sqlc.arg(reporter) LIMIT 1;
 
 -- name: Block :execresult
 INSERT INTO receiveBlockMap (address, access) VALUES (?, 'REJECT');

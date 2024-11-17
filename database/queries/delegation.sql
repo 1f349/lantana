@@ -5,7 +5,7 @@ INSERT INTO delegateMap (address, owner, auth, active) VALUES (?, ? , ?, 'false'
 DELETE FROM delegateMap WHERE address = ?;
 
 -- name: UpdateDelegateAccountAuth :execresult
-UPDATE delegateMap SET auth = $2 WHERE address = $1;
+UPDATE delegateMap SET auth = sqlc.arg(auth) WHERE address = sqlc.arg(address);
 
 -- name: EnableDelegateAccount :execresult
 UPDATE delegateMap SET active = 'true' WHERE address = ?;

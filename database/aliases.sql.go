@@ -154,35 +154,55 @@ func (q *Queries) AddWildcardAlias(ctx context.Context, arg AddWildcardAliasPara
 }
 
 const changeAliasRedirect = `-- name: ChangeAliasRedirect :execresult
-UPDATE aliasMap SET goto = $2 WHERE address = $1
+UPDATE aliasMap SET goto = ? WHERE address = ?
 `
 
-func (q *Queries) ChangeAliasRedirect(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, changeAliasRedirect)
+type ChangeAliasRedirectParams struct {
+	Goto    string `json:"goto"`
+	Address string `json:"address"`
+}
+
+func (q *Queries) ChangeAliasRedirect(ctx context.Context, arg ChangeAliasRedirectParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, changeAliasRedirect, arg.Goto, arg.Address)
 }
 
 const changeDomainAliasRedirect = `-- name: ChangeDomainAliasRedirect :execresult
-UPDATE aliasdomainMap SET goto = $2 WHERE domain = $1
+UPDATE aliasdomainMap SET goto = ? WHERE domain = ?
 `
 
-func (q *Queries) ChangeDomainAliasRedirect(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, changeDomainAliasRedirect)
+type ChangeDomainAliasRedirectParams struct {
+	Goto   string `json:"goto"`
+	Domain string `json:"domain"`
+}
+
+func (q *Queries) ChangeDomainAliasRedirect(ctx context.Context, arg ChangeDomainAliasRedirectParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, changeDomainAliasRedirect, arg.Goto, arg.Domain)
 }
 
 const changeUserAliasRedirect = `-- name: ChangeUserAliasRedirect :execresult
-UPDATE aliasuserMap SET goto = $2 WHERE user = $1
+UPDATE aliasuserMap SET goto = ? WHERE user = ?
 `
 
-func (q *Queries) ChangeUserAliasRedirect(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, changeUserAliasRedirect)
+type ChangeUserAliasRedirectParams struct {
+	Goto string `json:"goto"`
+	User string `json:"user"`
+}
+
+func (q *Queries) ChangeUserAliasRedirect(ctx context.Context, arg ChangeUserAliasRedirectParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, changeUserAliasRedirect, arg.Goto, arg.User)
 }
 
 const changeWildcardAliasRedirect = `-- name: ChangeWildcardAliasRedirect :execresult
-UPDATE wildcardaliasMap SET goto = $2 WHERE address = $1
+UPDATE wildcardaliasMap SET goto = ? WHERE address = ?
 `
 
-func (q *Queries) ChangeWildcardAliasRedirect(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, changeWildcardAliasRedirect)
+type ChangeWildcardAliasRedirectParams struct {
+	Allowed string `json:"allowed"`
+	Address string `json:"address"`
+}
+
+func (q *Queries) ChangeWildcardAliasRedirect(ctx context.Context, arg ChangeWildcardAliasRedirectParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, changeWildcardAliasRedirect, arg.Allowed, arg.Address)
 }
 
 const disableAlias = `-- name: DisableAlias :execresult
@@ -202,11 +222,16 @@ func (q *Queries) DisableDomainAlias(ctx context.Context, domain string) (sql.Re
 }
 
 const disableSenderAlias = `-- name: DisableSenderAlias :execresult
-UPDATE senderaliasMap SET active = 'true' WHERE address = $1 AND allowed = $2
+UPDATE senderaliasMap SET active = 'true' WHERE ? AND allowed = ?
 `
 
-func (q *Queries) DisableSenderAlias(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, disableSenderAlias)
+type DisableSenderAliasParams struct {
+	Address interface{} `json:"address"`
+	Allowed string      `json:"allowed"`
+}
+
+func (q *Queries) DisableSenderAlias(ctx context.Context, arg DisableSenderAliasParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, disableSenderAlias, arg.Address, arg.Allowed)
 }
 
 const disableUserAlias = `-- name: DisableUserAlias :execresult
@@ -242,11 +267,16 @@ func (q *Queries) EnableDomainAlias(ctx context.Context, domain string) (sql.Res
 }
 
 const enableSenderAlias = `-- name: EnableSenderAlias :execresult
-UPDATE senderaliasMap SET active = 'true' WHERE address = $1 AND allowed = $2
+UPDATE senderaliasMap SET active = 'true' WHERE ? AND allowed = ?
 `
 
-func (q *Queries) EnableSenderAlias(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, enableSenderAlias)
+type EnableSenderAliasParams struct {
+	Address interface{} `json:"address"`
+	Allowed string      `json:"allowed"`
+}
+
+func (q *Queries) EnableSenderAlias(ctx context.Context, arg EnableSenderAliasParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, enableSenderAlias, arg.Address, arg.Allowed)
 }
 
 const enableUserAlias = `-- name: EnableUserAlias :execresult
@@ -293,16 +323,15 @@ func (q *Queries) GetActiveSenderAliases(ctx context.Context, address string) ([
 }
 
 const getAliasRedirect = `-- name: GetAliasRedirect :one
-SELECT goto FROM aliasMap WHERE ((address = ? AND etype = 'plain') OR (? LIKE address AND etype = 'pattern') OR (? REGEXP address AND etype = 'regex')) AND active = 'true' LIMIT 1
+SELECT goto FROM aliasMap WHERE ((address = ? AND etype = 'plain') OR (? LIKE address AND etype = 'pattern') OR (sqlc.arg(address) RLIKE address AND etype = 'regex')) AND active = 'true' LIMIT 1
 `
 
 type GetAliasRedirectParams struct {
-	Address   string `json:"address"`
-	Address_2 string `json:"address_2"`
+	Address string `json:"address"`
 }
 
 func (q *Queries) GetAliasRedirect(ctx context.Context, arg GetAliasRedirectParams) (string, error) {
-	row := q.db.QueryRowContext(ctx, getAliasRedirect, arg.Address, arg.Address_2)
+	row := q.db.QueryRowContext(ctx, getAliasRedirect, arg.Address, arg.Address)
 	var goto_ string
 	err := row.Scan(&goto_)
 	return goto_, err
@@ -595,16 +624,15 @@ func (q *Queries) GetAllWildcardAliases(ctx context.Context) ([]Wildcardaliasmap
 }
 
 const getDomainAliasRedirect = `-- name: GetDomainAliasRedirect :one
-SELECT goto FROM aliasdomainMap WHERE ((domain = ? AND etype = 'plain') OR (? LIKE domain AND etype = 'pattern') OR (? REGEXP domain AND etype = 'regex')) AND active = 'true' LIMIT 1
+SELECT goto FROM aliasdomainMap WHERE ((domain = ? AND etype = 'plain') OR (? LIKE domain AND etype = 'pattern') OR (sqlc.arg(domain) RLIKE domain AND etype = 'regex')) AND active = 'true' LIMIT 1
 `
 
 type GetDomainAliasRedirectParams struct {
-	Domain   string `json:"domain"`
-	Domain_2 string `json:"domain_2"`
+	Domain string `json:"domain"`
 }
 
 func (q *Queries) GetDomainAliasRedirect(ctx context.Context, arg GetDomainAliasRedirectParams) (string, error) {
-	row := q.db.QueryRowContext(ctx, getDomainAliasRedirect, arg.Domain, arg.Domain_2)
+	row := q.db.QueryRowContext(ctx, getDomainAliasRedirect, arg.Domain, arg.Domain)
 	var goto_ string
 	err := row.Scan(&goto_)
 	return goto_, err
@@ -643,16 +671,15 @@ func (q *Queries) GetSenderAliases(ctx context.Context, address string) ([]GetSe
 }
 
 const getUserAliasRedirect = `-- name: GetUserAliasRedirect :one
-SELECT goto FROM aliasuserMap WHERE ((user = ? AND etype = 'plain') OR (? LIKE user AND etype = 'pattern') OR (? REGEXP user AND etype = 'regex')) AND active = 'true' LIMIT 1
+SELECT goto FROM aliasuserMap WHERE ((user = ? AND etype = 'plain') OR (? LIKE user AND etype = 'pattern') OR (sqlc.arg(user) RLIKE user AND etype = 'regex')) AND active = 'true' LIMIT 1
 `
 
 type GetUserAliasRedirectParams struct {
-	User   string `json:"user"`
-	User_2 string `json:"user_2"`
+	User string `json:"user"`
 }
 
 func (q *Queries) GetUserAliasRedirect(ctx context.Context, arg GetUserAliasRedirectParams) (string, error) {
-	row := q.db.QueryRowContext(ctx, getUserAliasRedirect, arg.User, arg.User_2)
+	row := q.db.QueryRowContext(ctx, getUserAliasRedirect, arg.User, arg.User)
 	var goto_ string
 	err := row.Scan(&goto_)
 	return goto_, err
@@ -670,41 +697,46 @@ func (q *Queries) GetWildcardAliasRedirect(ctx context.Context, address string) 
 }
 
 const removeAlias = `-- name: RemoveAlias :execresult
-DELETE FROM aliasMap WHERE address = $1
+DELETE FROM aliasMap WHERE address = ?
 `
 
-func (q *Queries) RemoveAlias(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, removeAlias)
+func (q *Queries) RemoveAlias(ctx context.Context, address string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, removeAlias, address)
 }
 
 const removeDomainAlias = `-- name: RemoveDomainAlias :execresult
-DELETE FROM aliasdomainMap WHERE domain = $1
+DELETE FROM aliasdomainMap WHERE domain = ?
 `
 
-func (q *Queries) RemoveDomainAlias(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, removeDomainAlias)
+func (q *Queries) RemoveDomainAlias(ctx context.Context, domain string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, removeDomainAlias, domain)
 }
 
 const removeSenderAlias = `-- name: RemoveSenderAlias :execresult
-DELETE FROM senderaliasMap WHERE address = $1 AND allowed = $2
+DELETE FROM senderaliasMap WHERE address = ? AND allowed = ?
 `
 
-func (q *Queries) RemoveSenderAlias(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, removeSenderAlias)
+type RemoveSenderAliasParams struct {
+	Address string `json:"address"`
+	Allowed string `json:"allowed"`
+}
+
+func (q *Queries) RemoveSenderAlias(ctx context.Context, arg RemoveSenderAliasParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, removeSenderAlias, arg.Address, arg.Allowed)
 }
 
 const removeUserAlias = `-- name: RemoveUserAlias :execresult
-DELETE FROM aliasuserMap WHERE user = $1
+DELETE FROM aliasuserMap WHERE user = ?
 `
 
-func (q *Queries) RemoveUserAlias(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, removeUserAlias)
+func (q *Queries) RemoveUserAlias(ctx context.Context, user string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, removeUserAlias, user)
 }
 
 const removeWildcardAlias = `-- name: RemoveWildcardAlias :execresult
-DELETE FROM wildcardaliasMap WHERE address = $1
+DELETE FROM wildcardaliasMap WHERE address = ?
 `
 
-func (q *Queries) RemoveWildcardAlias(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, removeWildcardAlias)
+func (q *Queries) RemoveWildcardAlias(ctx context.Context, address string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, removeWildcardAlias, address)
 }

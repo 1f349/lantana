@@ -25,19 +25,29 @@ func (q *Queries) AddMailbox(ctx context.Context, arg AddMailboxParams) (sql.Res
 }
 
 const changeMailboxMaildir = `-- name: ChangeMailboxMaildir :execresult
-UPDATE mailbox SET maildir = $2 WHERE username = $1
+UPDATE mailbox SET maildir = ? WHERE username = ?
 `
 
-func (q *Queries) ChangeMailboxMaildir(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, changeMailboxMaildir)
+type ChangeMailboxMaildirParams struct {
+	Maildir  string `json:"maildir"`
+	Username string `json:"username"`
+}
+
+func (q *Queries) ChangeMailboxMaildir(ctx context.Context, arg ChangeMailboxMaildirParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, changeMailboxMaildir, arg.Maildir, arg.Username)
 }
 
 const changeMailboxQuota = `-- name: ChangeMailboxQuota :execresult
-UPDATE mailbox SET quota = $2 WHERE username = $1
+UPDATE mailbox SET quota = ? WHERE username = ?
 `
 
-func (q *Queries) ChangeMailboxQuota(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, changeMailboxQuota)
+type ChangeMailboxQuotaParams struct {
+	Maildir  int64  `json:"maildir"`
+	Username string `json:"username"`
+}
+
+func (q *Queries) ChangeMailboxQuota(ctx context.Context, arg ChangeMailboxQuotaParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, changeMailboxQuota, arg.Maildir, arg.Username)
 }
 
 const deactivateMailbox = `-- name: DeactivateMailbox :execresult

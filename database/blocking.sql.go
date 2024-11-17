@@ -33,11 +33,16 @@ func (q *Queries) CreateReport(ctx context.Context, arg CreateReportParams) (sql
 }
 
 const deleteReport = `-- name: DeleteReport :execresult
-DELETE FROM receiveBlockReports WHERE address = $1 AND reporter = $2
+DELETE FROM receiveBlockReports WHERE address = ? AND reporter = ?
 `
 
-func (q *Queries) DeleteReport(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteReport)
+type DeleteReportParams struct {
+	Address  string `json:"address"`
+	Reporter string `json:"reporter"`
+}
+
+func (q *Queries) DeleteReport(ctx context.Context, arg DeleteReportParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteReport, arg.Address, arg.Reporter)
 }
 
 const getAllBlocks = `-- name: GetAllBlocks :many
@@ -106,11 +111,16 @@ func (q *Queries) GetBlock(ctx context.Context, address string) (string, error) 
 }
 
 const getReport = `-- name: GetReport :one
-SELECT report FROM receiveBlockReports WHERE address = $1 AND reporter = $2 LIMIT 1
+SELECT report FROM receiveBlockReports WHERE address = ? AND reporter = ? LIMIT 1
 `
 
-func (q *Queries) GetReport(ctx context.Context) (string, error) {
-	row := q.db.QueryRowContext(ctx, getReport)
+type GetReportParams struct {
+	Address  string `json:"address"`
+	Reporter string `json:"reporter"`
+}
+
+func (q *Queries) GetReport(ctx context.Context, arg GetReportParams) (string, error) {
+	row := q.db.QueryRowContext(ctx, getReport, arg.Address, arg.Reporter)
 	var report string
 	err := row.Scan(&report)
 	return report, err

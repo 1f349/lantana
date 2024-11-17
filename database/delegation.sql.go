@@ -199,9 +199,14 @@ func (q *Queries) RemoveDelegateRoute(ctx context.Context, address string) (sql.
 }
 
 const updateDelegateAccountAuth = `-- name: UpdateDelegateAccountAuth :execresult
-UPDATE delegateMap SET auth = $2 WHERE address = $1
+UPDATE delegateMap SET auth = ? WHERE address = ?
 `
 
-func (q *Queries) UpdateDelegateAccountAuth(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateDelegateAccountAuth)
+type UpdateDelegateAccountAuthParams struct {
+	Auth    string `json:"auth"`
+	Address string `json:"address"`
+}
+
+func (q *Queries) UpdateDelegateAccountAuth(ctx context.Context, arg UpdateDelegateAccountAuthParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateDelegateAccountAuth, arg.Auth, arg.Address)
 }

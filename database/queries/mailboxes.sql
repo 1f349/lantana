@@ -26,10 +26,10 @@ SELECT username, maildir, quota FROM mailbox WHERE active = 'true' OR active = '
 SELECT username, maildir, quota FROM mailbox WHERE active <> 'true';
 
 -- name: ChangeMailboxMaildir :execresult
-UPDATE mailbox SET maildir = $2 WHERE username = $1;
+UPDATE mailbox SET maildir = sqlc.arg(maildir) WHERE username = sqlc.arg(username);
 
 -- name: ChangeMailboxQuota :execresult
-UPDATE mailbox SET quota = $2 WHERE username = $1;
+UPDATE mailbox SET quota = sqlc.arg(maildir) WHERE username = sqlc.arg(username);
 
 -- name: GetMailbox :one
 SELECT * FROM mailbox WHERE username = ? LIMIT 1;
