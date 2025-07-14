@@ -49,6 +49,19 @@ func (q *Queries) AddProtectedReceive(ctx context.Context, arg AddProtectedRecei
 	return q.db.ExecContext(ctx, addProtectedReceive, arg.Address, arg.Access)
 }
 
+const changePassword = `-- name: ChangePassword :execresult
+UPDATE mailshadow SET password = ? WHERE username = ? AND allow_pwd_chng = 'true'
+`
+
+type ChangePasswordParams struct {
+	Password string `json:"password"`
+	Username string `json:"username"`
+}
+
+func (q *Queries) ChangePassword(ctx context.Context, arg ChangePasswordParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, changePassword, arg.Password, arg.Username)
+}
+
 const disableAccountPasswordChange = `-- name: DisableAccountPasswordChange :execresult
 UPDATE mailshadow SET allow_pwd_chng = 'false' WHERE username = ?
 `
@@ -337,6 +350,17 @@ func (q *Queries) GetMasterAccount(ctx context.Context, username string) (Mailma
 	var i Mailmaster
 	err := row.Scan(&i.Username, &i.Password, &i.Active)
 	return i, err
+}
+
+const getPassword = `-- name: GetPassword :one
+SELECT password FROM mailshadow WHERE username = ? LIMIT 1
+`
+
+func (q *Queries) GetPassword(ctx context.Context, username string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getPassword, username)
+	var password string
+	err := row.Scan(&password)
+	return password, err
 }
 
 const getProtectedReceive = `-- name: GetProtectedReceive :one
