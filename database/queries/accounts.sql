@@ -66,3 +66,9 @@ SELECT * FROM mailshadow WHERE username = ? LIMIT 1;
 
 -- name: GetAccountAllowPasswordChange :one
 SELECT allow_pwd_chng FROM mailshadow WHERE username = ? LIMIT 1;
+
+-- name: ChangePassword :execresult
+UPDATE mailshadow SET password = ? WHERE username = ? AND allow_pwd_chng = 'true';
+
+-- name: GetPassword :one
+SELECT password FROM mailshadow WHERE username = ? LIMIT 1;
