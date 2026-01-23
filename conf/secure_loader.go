@@ -3,6 +3,7 @@ package conf
 import (
 	"net"
 	"os"
+	"strings"
 	"sync"
 	"syscall"
 )
@@ -39,9 +40,10 @@ func (s *SecureLoader) Cancel() {
 }
 
 func LoadData(loadMode, loadString string) *SecureLoader {
+	loadMode = strings.ToLower(loadMode)
 	dChan := make(chan []byte, 1)
 	eChan := make(chan error, 1)
-	cancel := func() {}
+	cancel := emptyFunc
 	switch loadMode {
 	case "unix":
 		canChan := make(chan struct{})

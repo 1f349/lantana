@@ -8,3 +8,17 @@ sql:
         package: "database"
         out: "database"
         emit_json_tags: true
+  - engine: mysql
+    queries: database_token/queries
+    schema: database_token/schemas
+    gen:
+      go:
+        package: "database_token_mysql"
+        out: "database_token/mysql"
+  - engine: sqlite
+    queries: database_token/queries
+    schema: database_token/schemas
+    gen:
+      go:
+        package: "database_token_sqlite"
+        out: "database_token/sqlite"

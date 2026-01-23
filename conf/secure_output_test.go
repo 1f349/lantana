@@ -12,12 +12,24 @@ import (
 	"time"
 )
 
+func TestSecureOutputInvalid(t *testing.T) {
+	modes := []string{"", "invaLid"}
+	for _, mode := range modes {
+		t.Run(mode, func(t *testing.T) {
+			t.Parallel()
+			eChan, _ := OutputData(mode, "", nil)
+			err := <-eChan
+			assert.ErrorIs(t, err, ErrNoSaveMode)
+		})
+	}
+}
+
 func TestSecureOutputUnix(t *testing.T) {
 	tDir := t.TempDir()
 	sPath := filepath.Join(tDir, "output.sock")
 	tb := make([]byte, 16384)
 	_, _ = rand.NewChaCha8([32]byte{}).Read(tb)
-	eChan, cancel := OutputData("unix", sPath, tb)
+	eChan, cancel := OutputData("uNix", sPath, tb)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 	go func() {
@@ -56,7 +68,7 @@ func TestSecureOutputFile(t *testing.T) {
 	sPath := filepath.Join(tDir, "output.safe")
 	tb := make([]byte, 16384)
 	_, _ = rand.NewChaCha8([32]byte{}).Read(tb)
-	eChan, _ := OutputData("file", sPath, tb)
+	eChan, _ := OutputData("fiLe", sPath, tb)
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {

@@ -4,12 +4,15 @@ import (
 	"errors"
 	"net"
 	"os"
+	"strings"
 	"syscall"
 )
 
+var emptyFunc = func() {}
 var ErrNoSaveMode = errors.New("no save mode")
 
 func OutputData(saveMode, saveString string, saveData []byte) (errChan <-chan error, cancel func()) {
+	saveMode = strings.ToLower(saveMode)
 	eChan := make(chan error, 1)
 	switch saveMode {
 	case "unix":
@@ -64,5 +67,5 @@ func OutputData(saveMode, saveString string, saveData []byte) (errChan <-chan er
 			eChan <- ErrNoSaveMode
 		}()
 	}
-	return eChan, func() {}
+	return eChan, emptyFunc
 }
