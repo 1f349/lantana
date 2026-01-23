@@ -17,7 +17,7 @@ func CreateDBConnection(connection string, schemaPath string, upgrade bool) (*sq
 	sIdx := strings.Index(connection, ":")
 	if sIdx < -1 {
 		return nil, DBTypeMissing
-	} else if sIdx == len(connection)-1 {
+	} else if sIdx == len(connection)-1 || sIdx == 0 {
 		return nil, DBConnectMissing
 	}
 	dbT := connection[:sIdx]
