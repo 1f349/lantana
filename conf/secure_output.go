@@ -1,20 +1,36 @@
 package conf
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"net"
 	"os"
 	"strings"
-	"syscall"
 )
 
 var emptyFunc = func() {}
 var ErrNoSaveMode = errors.New("no save mode")
+var StdOut io.Writer = os.Stdout
 
 func OutputData(saveMode, saveString string, saveData []byte) (errChan <-chan error, cancel func()) {
 	saveMode = strings.ToLower(saveMode)
 	eChan := make(chan error, 1)
 	switch saveMode {
+	case "stdout":
+		go func() {
+			defer close(eChan)
+			if StdOut == nil {
+				eChan <- io.ErrUnexpectedEOF
+			} else {
+				toWrite := new(bytes.Buffer)
+				toWrite.Write([]byte(saveString + ": "))
+				toWrite.Write(saveData)
+				toWrite.Write([]byte(newLine))
+				_, err := StdOut.Write(toWrite.Bytes())
+				eChan <- err
+			}
+		}()
 	case "unix":
 		canChan := make(chan struct{})
 		cmsmg := make(chan struct{})
@@ -24,8 +40,8 @@ func OutputData(saveMode, saveString string, saveData []byte) (errChan <-chan er
 		go func() {
 			defer close(eChan)
 			defer close(cmsmg)
-			omask := syscall.Umask(0077)
-			defer syscall.Umask(omask)
+			urestore := umask(0077)
+			defer urestore()
 			l, err := net.ListenUnix("unix", &net.UnixAddr{
 				Name: saveString,
 				Net:  "unix",

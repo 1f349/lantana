@@ -1,6 +1,7 @@
 package conf
 
 import (
+	"bytes"
 	"github.com/stretchr/testify/assert"
 	"math/rand/v2"
 	"net"
@@ -46,7 +47,7 @@ func TestSecureOutputUnix(t *testing.T) {
 	fi, err := os.Stat(sPath)
 	assert.NoError(t, err)
 	t.Log(fi.Mode().Perm().String())
-	assert.Equal(t, 0700, int(fi.Mode().Perm()))
+	assert.Equal(t, gperm(0700, 0666), int(fi.Mode().Perm()))
 	c, err := net.Dial("unix", sPath)
 	assert.NoError(t, err)
 	defer func() { _ = c.Close() }()
@@ -80,9 +81,33 @@ func TestSecureOutputFile(t *testing.T) {
 	fi, err := os.Stat(sPath)
 	assert.NoError(t, err)
 	t.Log(fi.Mode().Perm().String())
-	assert.Equal(t, 0600, int(fi.Mode().Perm()))
+	assert.Equal(t, gperm(0600, 0666), int(fi.Mode().Perm()))
 	rbts, err := os.ReadFile(sPath)
 	assert.NoError(t, err)
 	wg.Wait()
 	assert.True(t, slices.Equal(tb, rbts))
+}
+
+func TestSecureOutputStdOut(t *testing.T) {
+	const saveString = "secure"
+	oStdOut := StdOut
+	defer func() { StdOut = oStdOut }()
+	oBuff := new(bytes.Buffer)
+	StdOut = oBuff
+	tb := make([]byte, 16384)
+	_, _ = rand.NewChaCha8([32]byte{}).Read(tb)
+	eChan, _ := OutputData("stdout", saveString, tb)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		err := <-eChan
+		assert.NoError(t, err)
+		wg.Done()
+	}()
+	wg.Wait()
+	expected := new(bytes.Buffer)
+	expected.Write([]byte(saveString + ": "))
+	expected.Write(tb)
+	expected.Write([]byte(newLine))
+	assert.Equal(t, expected.Bytes(), oBuff.Bytes())
 }

@@ -13,7 +13,7 @@ import (
 var DBTypeMissing = errors.New("database type missing")
 var DBConnectMissing = errors.New("database connection string missing")
 
-func CreateDBConnection(connection string, schemaPath string, upgrade bool) (*sql.DB, error) {
+func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sql.DB, error) {
 	sIdx := strings.Index(connection, ":")
 	if sIdx < -1 {
 		return nil, DBTypeMissing
@@ -25,13 +25,13 @@ func CreateDBConnection(connection string, schemaPath string, upgrade bool) (*sq
 	if err != nil {
 		return nil, err
 	}
-	if upgrade {
+	if upgrade || reset {
 		var drv database.Driver
 		var m *migrate.Migrate
 		switch dbT {
 		case "mysql":
 			drv, err = mysql.WithInstance(db, &mysql.Config{})
-		case "sqlite":
+		case "sqlite", "sqlite3":
 			drv, err = sqlite.WithInstance(db, &sqlite.Config{})
 		}
 		if err != nil {
@@ -46,7 +46,15 @@ func CreateDBConnection(connection string, schemaPath string, upgrade bool) (*sq
 			defer func() {
 				_, _ = m.Close()
 			}()
-			err = m.Up()
+			if reset {
+				err = m.Drop()
+			}
+			if err != nil {
+				return db, err
+			}
+			if upgrade {
+				err = m.Up()
+			}
 			if err != nil {
 				return db, err
 			}

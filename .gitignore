@@ -2,3 +2,8 @@
 *.local
 .data
 .idea/
+.env
+
+# Distributable directory
+dist/
+

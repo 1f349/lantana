@@ -1,0 +1,15 @@
+# Lantana Server Service
+[Unit]
+Description=Lantana Server Service
+
+[Service]
+WorkingDirectory=/etc/lantana
+ExecStart=/usr/local/bin/lantana
+User=root
+Group=root
+Type=simple
+Restart=on-failure
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target

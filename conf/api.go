@@ -3,11 +3,12 @@ package conf
 import "strings"
 
 type APIYaml struct {
-	JWT           JWTYaml    `yaml:"jwt"`
-	BasePrefixURL string     `yaml:"basePrefixURL"`
-	Domains       []string   `yaml:"domains"`
-	HTTPListener  ListenYaml `yaml:"httpListener"`
-	BSONListener  ListenYaml `yaml:"bsonListener"`
+	JWT           JWTYaml      `yaml:"jwt"`
+	JWTKeys       []JWTKeyYaml `yaml:"jwtKeys"`
+	BasePrefixURL string       `yaml:"basePrefixURL"`
+	Domains       []string     `yaml:"domains"`
+	HTTPListener  ListenYaml   `yaml:"httpListener"`
+	BSONListener  ListenYaml   `yaml:"bsonListener"`
 }
 
 func (ay APIYaml) GetBasePrefixURL() string {

@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"syscall"
 )
 
 type SecureLoader struct {
@@ -55,8 +54,8 @@ func LoadData(loadMode, loadString string) *SecureLoader {
 			defer close(dChan)
 			defer close(eChan)
 			defer close(cmsmg)
-			omask := syscall.Umask(0077)
-			defer syscall.Umask(omask)
+			urestore := umask(0077)
+			defer urestore()
 			l, err := net.ListenUnix("unix", &net.UnixAddr{
 				Name: loadString,
 				Net:  "unix",

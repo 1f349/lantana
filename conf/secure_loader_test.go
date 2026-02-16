@@ -69,7 +69,7 @@ func TestSecureLoadUnix(t *testing.T) {
 		fi, err := os.Stat(sPath)
 		assert.NoError(t, err)
 		t.Log(fi.Mode().Perm().String())
-		assert.Equal(t, 0700, int(fi.Mode().Perm()))
+		assert.Equal(t, gperm(0700, 0666), int(fi.Mode().Perm()))
 		c, err := net.Dial("unix", sPath)
 		assert.NoError(t, err)
 		writeTestData(c)
