@@ -10,6 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"os"
 	"os/signal"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -51,8 +52,17 @@ func (d *daemonCmd) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{}
 	}
 
 	if d.configPath == "" {
-		log.Error("Configuration file path is required")
-		return subcommands.ExitUsageError
+		cwd, err := os.Getwd()
+		if err == nil {
+			if st, err := os.Stat(path.Join(cwd, ".data", "config.yml")); err == nil && !st.IsDir() {
+				d.configPath = path.Join(cwd, ".data", "config.yml")
+				log.Info("Configuration file found at .data/config.yml")
+			}
+		}
+		if d.configPath == "" {
+			log.Error("Configuration file path is required")
+			return subcommands.ExitUsageError
+		}
 	}
 
 	openConf, err := os.Open(d.configPath)
