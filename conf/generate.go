@@ -12,7 +12,7 @@ func Generate(target io.Writer) {
 	//Conf Defaults
 	cnf := &MainYaml{
 		Database: DBYaml{
-			ConnectionString: "mysql:root:password@tcp(localhost:3306)/database",
+			ConnectionString: "mysql:root:password@tcp(localhost:3306)/database?multiStatements=true",
 			SchemaPath:       "schema/mail",
 		},
 		API: APIYaml{
