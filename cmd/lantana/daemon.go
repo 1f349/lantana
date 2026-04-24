@@ -143,11 +143,11 @@ func hasVal(val string, vals []string) bool {
 
 func getSchemaPath(pth string) string {
 	if path.IsAbs(pth) {
-		return "file:///" + pth
+		return conf.FileProtocol() + pth
 	}
 	cwd, err := os.Getwd()
 	if err != nil {
-		return "file:///" + pth
+		return conf.FileProtocol() + pth
 	}
-	return "file:///" + path.Join(cwd, pth)
+	return conf.FileProtocol() + path.Join(cwd, pth)
 }

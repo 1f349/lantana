@@ -14,3 +14,7 @@ func umask(target int) (restore func()) {
 func gperm(nix, win int) int {
 	return win
 }
+
+func FileProtocol() string {
+	return "file:///"
+}
