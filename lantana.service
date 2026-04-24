@@ -4,7 +4,7 @@ Description=Lantana Server Service
 
 [Service]
 WorkingDirectory=/etc/lantana
-ExecStart=/usr/local/bin/lantana
+ExecStart=/usr/local/bin/lantana daemon
 User=root
 Group=root
 Type=simple
