@@ -83,7 +83,7 @@ func (d *daemonCmd) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{}
 		return subcommands.ExitFailure
 	}
 
-	db, err := conf.CreateDBConnection(cnf.Database.ConnectionString, getPath(cnf.Database.SchemaPath), hasVal(os.Getenv("DB_UPGRADE"), trues), hasVal(os.Getenv("DB_RESET"), trues))
+	db, err := conf.CreateDBConnection(cnf.Database.ConnectionString, getSchemaPath(cnf.Database.SchemaPath), hasVal(os.Getenv("DB_UPGRADE"), trues), hasVal(os.Getenv("DB_RESET"), trues))
 	if err != nil {
 		log.Error("Error connecting to database: ", err)
 		return subcommands.ExitFailure
@@ -95,7 +95,7 @@ func (d *daemonCmd) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{}
 			log.Error("Error closing database connection: ", err)
 		}
 	}()
-	dbTokens, err := conf.CreateDBConnection(cnf.API.JWT.Database.ConnectionString, getPath(cnf.API.JWT.Database.SchemaPath), hasVal(os.Getenv("DB_TOKEN_UPGRADE"), trues), hasVal(os.Getenv("DB_TOKEN_RESET"), trues))
+	dbTokens, err := conf.CreateDBConnection(cnf.API.JWT.Database.ConnectionString, getSchemaPath(cnf.API.JWT.Database.SchemaPath), hasVal(os.Getenv("DB_TOKEN_UPGRADE"), trues), hasVal(os.Getenv("DB_TOKEN_RESET"), trues))
 	if err != nil {
 		log.Error("Error connecting to token database: ", err)
 		return subcommands.ExitFailure
@@ -141,13 +141,13 @@ func hasVal(val string, vals []string) bool {
 	return false
 }
 
-func getPath(pth string) string {
+func getSchemaPath(pth string) string {
 	if path.IsAbs(pth) {
-		return pth
+		return "file:///" + pth
 	}
 	cwd, err := os.Getwd()
 	if err != nil {
-		return pth
+		return "file:///" + pth
 	}
-	return path.Join(cwd, pth)
+	return "file:///" + path.Join(cwd, pth)
 }
