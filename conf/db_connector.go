@@ -50,6 +50,9 @@ func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sq
 			}
 			log.Info("Database Instance Migrating") // DEBUG
 			defer func() {
+				if m == nil {
+					return
+				}
 				_, _ = m.Close()
 			}()
 			if reset {
@@ -57,6 +60,13 @@ func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sq
 				err = m.Drop()
 				if err == nil {
 					err = m.Force(-1)
+					_, _ = m.Close()
+					m, err = migrate.NewWithDatabaseInstance(schemaPath, dbT, drv)
+					if err != nil {
+						m = nil
+						_ = drv.Close()
+						return db, err
+					}
 				}
 			}
 			if err != nil {
