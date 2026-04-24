@@ -10,20 +10,6 @@ import (
 	"database/sql"
 )
 
-const addJTIEntry = `-- name: AddJTIEntry :execresult
-INSERT INTO jtiIAT (jti, min_iat, min_refresh_iat) VALUES (?, ? ,?)
-`
-
-type AddJTIEntryParams struct {
-	Jti           string
-	MinIat        int64
-	MinRefreshIat int64
-}
-
-func (q *Queries) AddJTIEntry(ctx context.Context, arg AddJTIEntryParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, addJTIEntry, arg.Jti, arg.MinIat, arg.MinRefreshIat)
-}
-
 const addSubjectEntry = `-- name: AddSubjectEntry :execresult
 INSERT INTO subjectIAT (subject, min_iat, min_refresh_iat) VALUES (?, ? ,?)
 `
@@ -36,22 +22,6 @@ type AddSubjectEntryParams struct {
 
 func (q *Queries) AddSubjectEntry(ctx context.Context, arg AddSubjectEntryParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, addSubjectEntry, arg.Subject, arg.MinIat, arg.MinRefreshIat)
-}
-
-const getMinIATRefreshJTIIAT = `-- name: GetMinIATRefreshJTIIAT :one
-SELECT min_iat, min_refresh_iat FROM jtiIAT WHERE jti = ? LIMIT 1
-`
-
-type GetMinIATRefreshJTIIATRow struct {
-	MinIat        int64
-	MinRefreshIat int64
-}
-
-func (q *Queries) GetMinIATRefreshJTIIAT(ctx context.Context, jti string) (GetMinIATRefreshJTIIATRow, error) {
-	row := q.db.QueryRowContext(ctx, getMinIATRefreshJTIIAT, jti)
-	var i GetMinIATRefreshJTIIATRow
-	err := row.Scan(&i.MinIat, &i.MinRefreshIat)
-	return i, err
 }
 
 const getMinIATRefreshSubjectIAT = `-- name: GetMinIATRefreshSubjectIAT :one
@@ -68,28 +38,6 @@ func (q *Queries) GetMinIATRefreshSubjectIAT(ctx context.Context, subject string
 	var i GetMinIATRefreshSubjectIATRow
 	err := row.Scan(&i.MinIat, &i.MinRefreshIat)
 	return i, err
-}
-
-const getMinJTIIAT = `-- name: GetMinJTIIAT :one
-SELECT min_iat FROM jtiIAT WHERE jti = ? LIMIT 1
-`
-
-func (q *Queries) GetMinJTIIAT(ctx context.Context, jti string) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getMinJTIIAT, jti)
-	var min_iat int64
-	err := row.Scan(&min_iat)
-	return min_iat, err
-}
-
-const getMinRefreshJTIIAT = `-- name: GetMinRefreshJTIIAT :one
-SELECT min_refresh_iat FROM jtiIAT WHERE jti = ? LIMIT 1
-`
-
-func (q *Queries) GetMinRefreshJTIIAT(ctx context.Context, jti string) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getMinRefreshJTIIAT, jti)
-	var min_refresh_iat int64
-	err := row.Scan(&min_refresh_iat)
-	return min_refresh_iat, err
 }
 
 const getMinRefreshSubjectIAT = `-- name: GetMinRefreshSubjectIAT :one
@@ -114,47 +62,12 @@ func (q *Queries) GetMinSubjectIAT(ctx context.Context, subject string) (int64, 
 	return min_iat, err
 }
 
-const removeJTIEntry = `-- name: RemoveJTIEntry :execresult
-DELETE FROM jtiIAT WHERE jti = ?
-`
-
-func (q *Queries) RemoveJTIEntry(ctx context.Context, jti string) (sql.Result, error) {
-	return q.db.ExecContext(ctx, removeJTIEntry, jti)
-}
-
 const removeSubjectEntry = `-- name: RemoveSubjectEntry :execresult
 DELETE FROM subjectIAT WHERE subject = ?
 `
 
 func (q *Queries) RemoveSubjectEntry(ctx context.Context, subject string) (sql.Result, error) {
 	return q.db.ExecContext(ctx, removeSubjectEntry, subject)
-}
-
-const updateJTIMinIAT = `-- name: UpdateJTIMinIAT :execresult
-UPDATE jtiIAT SET min_iat = ? WHERE jti = ?
-`
-
-type UpdateJTIMinIATParams struct {
-	MinIat int64
-	Jti    string
-}
-
-func (q *Queries) UpdateJTIMinIAT(ctx context.Context, arg UpdateJTIMinIATParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateJTIMinIAT, arg.MinIat, arg.Jti)
-}
-
-const updateJTIMinRefreshIAT = `-- name: UpdateJTIMinRefreshIAT :execresult
-UPDATE jtiIAT SET min_iat = ?, min_refresh_iat = ?  WHERE jti = ?
-`
-
-type UpdateJTIMinRefreshIATParams struct {
-	MinIat        int64
-	MinRefreshIat int64
-	Jti           string
-}
-
-func (q *Queries) UpdateJTIMinRefreshIAT(ctx context.Context, arg UpdateJTIMinRefreshIATParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateJTIMinRefreshIAT, arg.MinIat, arg.MinRefreshIat, arg.Jti)
 }
 
 const updateSubjectMinIAT = `-- name: UpdateSubjectMinIAT :execresult
