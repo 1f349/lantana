@@ -53,14 +53,15 @@ func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sq
 				_, _ = m.Close()
 			}()
 			if reset {
-				log.Info("Database Instance Dropped") // DEBUG
+				log.Info("Database Instance Dropping") // DEBUG
 				err = m.Drop()
+				err = m.Force(-1)
 			}
 			if err != nil {
 				return db, err
 			}
 			if upgrade {
-				log.Info("Database Instance Upgraded") // DEBUG
+				log.Info("Database Instance Upgrading") // DEBUG
 				err = m.Up()
 			}
 			if err != nil {
