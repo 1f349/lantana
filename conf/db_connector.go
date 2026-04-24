@@ -3,6 +3,7 @@ package conf
 import (
 	"database/sql"
 	"errors"
+	"github.com/charmbracelet/log"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database"
@@ -41,21 +42,25 @@ func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sq
 			return db, err
 		}
 		if drv != nil {
+			log.Info("Database Instance Connected") // DEBUG
 			m, err = migrate.NewWithDatabaseInstance(schemaPath, dbT, drv)
 			if err != nil {
 				_ = drv.Close()
 				return db, err
 			}
+			log.Info("Database Instance Migrating") // DEBUG
 			defer func() {
 				_, _ = m.Close()
 			}()
 			if reset {
+				log.Info("Database Instance Dropped") // DEBUG
 				err = m.Drop()
 			}
 			if err != nil {
 				return db, err
 			}
 			if upgrade {
+				log.Info("Database Instance Upgraded") // DEBUG
 				err = m.Up()
 			}
 			if err != nil {

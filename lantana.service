@@ -9,7 +9,7 @@ User=root
 Group=root
 Type=simple
 Restart=on-failure
-RestartSec=15
+RestartSec=60
 
 [Install]
 WantedBy=multi-user.target

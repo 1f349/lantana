@@ -4,12 +4,12 @@ Description=Lantana Server Service (Dev)
 
 [Service]
 WorkingDirectory=/etc/lantana_
-ExecStart=/usr/local/bin/lantana_ daemon
+ExecStart=/usr/local/bin/lantana_ daemon -debug
 User=root
 Group=root
 Type=simple
 Restart=on-failure
-RestartSec=15
+RestartSec=60
 
 [Install]
 WantedBy=multi-user.target
