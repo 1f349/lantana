@@ -2,6 +2,8 @@
 
 package conf
 
+import "syscall"
+
 const newLine = "\n"
 
 func umask(target int) (restore func()) {
