@@ -54,9 +54,9 @@ func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sq
 			}()
 			log.Info("Database Instance Dropping") // DEBUG
 			err = m.Drop()
-			if err == nil {
+			/*if err == nil {
 				err = m.Force(-1)
-			}
+			}*/
 			if err != nil {
 				return db, err
 			}
