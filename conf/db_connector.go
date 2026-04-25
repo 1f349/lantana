@@ -29,9 +29,9 @@ func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sq
 	if err != nil {
 		return nil, err
 	}
-	if upgrade || reset {
-		var drv database.Driver
-		var m *migrate.Migrate
+	var drv database.Driver
+	var m *migrate.Migrate
+	if reset {
 		switch dbT {
 		case "mysql":
 			drv, err = mysql.WithInstance(db, &mysql.Config{})
@@ -48,27 +48,41 @@ func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sq
 				_ = drv.Close()
 				return db, err
 			}
-			log.Info("Database Instance Migrating") // DEBUG
+			log.Info("Database Instance Migrator Activated") // DEBUG
 			defer func() {
-				if m == nil {
-					return
-				}
 				_, _ = m.Close()
 			}()
-			if reset {
-				log.Info("Database Instance Dropping") // DEBUG
-				err = m.Drop()
-				if err == nil {
-					err = m.Force(-1)
-					_, _ = m.Close()
-					m, err = migrate.NewWithDatabaseInstance(schemaPath, dbT, drv)
-					if err != nil {
-						m = nil
-						_ = drv.Close()
-						return db, err
-					}
-				}
+			log.Info("Database Instance Dropping") // DEBUG
+			err = m.Drop()
+			if err == nil {
+				err = m.Force(-1)
 			}
+			if err != nil {
+				return db, err
+			}
+		}
+	}
+	if upgrade {
+		switch dbT {
+		case "mysql":
+			drv, err = mysql.WithInstance(db, &mysql.Config{})
+		case "sqlite", "sqlite3":
+			drv, err = sqlite.WithInstance(db, &sqlite.Config{})
+		}
+		if err != nil {
+			return db, err
+		}
+		if drv != nil {
+			log.Info("Database Instance Connected") // DEBUG
+			m, err = migrate.NewWithDatabaseInstance(schemaPath, dbT, drv)
+			if err != nil {
+				_ = drv.Close()
+				return db, err
+			}
+			log.Info("Database Instance Migrator Activated") // DEBUG
+			defer func() {
+				_, _ = m.Close()
+			}()
 			if err != nil {
 				return db, err
 			}
