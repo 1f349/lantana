@@ -100,7 +100,7 @@ func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sq
 				log.Debug("Database Instance Upgrading") // DEBUG
 			}
 			err = m.Up()
-			if err != nil {
+			if err != nil && !errors.Is(err, migrate.ErrNoChange) {
 				return db, err
 			}
 		}
