@@ -42,17 +42,23 @@ func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sq
 			return db, err
 		}
 		if drv != nil {
-			log.Info("Database Instance Connected") // DEBUG
+			if Debug {
+				log.Info("Database Instance Connected") // DEBUG
+			}
 			m, err = migrate.NewWithDatabaseInstance(schemaPath, dbT, drv)
 			if err != nil {
 				_ = drv.Close()
 				return db, err
 			}
-			log.Info("Database Instance Migrator Activated") // DEBUG
+			if Debug {
+				log.Debug("Database Instance Migrator Activated") // DEBUG
+			}
 			defer func() {
 				_, _ = m.Close()
 			}()
-			log.Info("Database Instance Dropping") // DEBUG
+			if Debug {
+				log.Debug("Database Instance Dropping") // DEBUG
+			}
 			err = m.Drop()
 			/*if err == nil {
 				err = m.Force(-1)
@@ -62,6 +68,9 @@ func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sq
 			}
 		}
 	}
+	err = nil
+	drv = nil
+	m = nil
 	if upgrade {
 		switch dbT {
 		case "mysql":
@@ -73,23 +82,24 @@ func CreateDBConnection(connection, schemaPath string, upgrade, reset bool) (*sq
 			return db, err
 		}
 		if drv != nil {
-			log.Info("Database Instance Connected") // DEBUG
+			if Debug {
+				log.Debug("Database Instance Connected") // DEBUG
+			}
 			m, err = migrate.NewWithDatabaseInstance(schemaPath, dbT, drv)
 			if err != nil {
 				_ = drv.Close()
 				return db, err
 			}
-			log.Info("Database Instance Migrator Activated") // DEBUG
+			if Debug {
+				log.Debug("Database Instance Migrator Activated") // DEBUG
+			}
 			defer func() {
 				_, _ = m.Close()
 			}()
-			if err != nil {
-				return db, err
+			if Debug {
+				log.Debug("Database Instance Upgrading") // DEBUG
 			}
-			if upgrade {
-				log.Info("Database Instance Upgrading") // DEBUG
-				err = m.Up()
-			}
+			err = m.Up()
 			if err != nil {
 				return db, err
 			}
