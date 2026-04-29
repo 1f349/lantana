@@ -27,8 +27,7 @@ CREATE TABLE IF NOT EXISTS aliasMap (
     address varchar(254) NOT NULL PRIMARY KEY,
     goto varchar(254) NOT NULL,
     active ENUM('false', 'true') NOT NULL,
-    etype ENUM('plain', 'pattern', 'regex') NOT NULL,
-    FOREIGN KEY (goto) REFERENCES mailbox(username) ON UPDATE CASCADE ON DELETE CASCADE
+    etype ENUM('plain', 'pattern', 'regex') NOT NULL DEFAULT 'plain'
 );
 
 CREATE TABLE IF NOT EXISTS senderaliasMap (
@@ -43,14 +42,14 @@ CREATE TABLE IF NOT EXISTS aliasdomainMap (
     domain varchar(253) NOT NULL PRIMARY KEY,
     goto varchar(253) NOT NULL,
     active ENUM('false', 'true', 'catch_all') NOT NULL,
-    etype ENUM('plain', 'pattern', 'regex') NOT NULL
+    etype ENUM('plain', 'pattern', 'regex') NOT NULL DEFAULT 'plain'
 );
 
 CREATE TABLE IF NOT EXISTS aliasuserMap (
     user varchar(253) NOT NULL PRIMARY KEY,
     goto varchar(253) NOT NULL,
     active ENUM('false', 'true', 'catch_all') NOT NULL,
-    etype ENUM('plain', 'pattern', 'regex') NOT NULL
+    etype ENUM('plain', 'pattern', 'regex') NOT NULL DEFAULT 'plain'
 );
 
 CREATE TABLE IF NOT EXISTS wildcardaliasMap (
